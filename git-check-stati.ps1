@@ -1,0 +1,1 @@
+﻿$dirs = Get-Item *
