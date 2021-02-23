@@ -1,5 +1,5 @@
 ﻿# Name of solution, (Customarily named Domain.ProductName)
-$solutionname = #"Company.SolutionName"
+$solutionname = "Semine.IntegrationEngine"
 $executionprojectname = "Api"
 $executionprojecttype = "webapi"
 # Path to where you keep your git -repos or solutions/projects
@@ -8,22 +8,21 @@ $repospath = "c:\repos"
 # Check if repos path exists and create it if not, and move "execution context" to said path
 $repospathexist = Test-Path $repospath
 if (!$repospathexist) {
-    exit
+    mkdir $repospath
 }
-cd $repospath
+Set-Location $repospath
 
 # If soltuin exist, exit, else create directory for solution
 $solutionexist = Test-Path $solutionname
 if (!$solutionexist) {
-    mkdir $repospath
+    mkdir $solutionname
 }
-mkdir $solutionname
 
 # Create basic solution with git
-cd $solutionname
+Set-Location $solutionname
 dotnet new sln
-dotnet new gitignore  
-echo "# Readme" > readme.md
+dotnet new gitignore
+Write-Output "# Readme" > readme.md
 git init
 
 # Create project folders
@@ -33,10 +32,10 @@ mkdir "$solutionname.Models"
 mkdir "$solutionname.Tests"
 
 # Create projects
-dotnet new classlib -o "$solutionname" -f netcoreapp3.1 --langVersion 8.0 --no-restore
-dotnet new $executionprojecttype -o "$solutionname.$executionprojectname" -f netcoreapp3.1 --no-restore
-dotnet new classlib -o "$solutionname.Models" -f netstandard2.1 --langVersion 8.0 --no-restore
-dotnet new xunit -o "$solutionname.Tests" -f netcoreapp3.1 --no-restore
+dotnet new classlib -o "$solutionname" -f net5.0 --langVersion 9.0 --no-restore
+dotnet new $executionprojecttype -o "$solutionname.$executionprojectname" -f net5.0 --no-restore
+dotnet new classlib -o "$solutionname.Models" -f net5.0 --langVersion 9.0 --no-restore
+dotnet new xunit -o "$solutionname.Tests" -f net5.0 --no-restore
 
 # Add references between projects
 dotnet add "$solutionname/$solutionname.csproj" reference "$solutionname.Models/$solutionname.Models.csproj"
@@ -51,15 +50,12 @@ dotnet sln "$solutionname.sln" add "$solutionname.Tests/$solutionname.Tests.cspr
 
 # Add some default Nugets that often is used
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package FluentAssertions.AspNetCore.Mvc --source https://api.nuget.org/v3/index.json -n
-dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package Bogus --source https://api.nuget.org/v3/index.json -n
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package AutoBogus --source https://api.nuget.org/v3/index.json -n
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package NSubstitute --source https://api.nuget.org/v3/index.json -n
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package AutoFixture --source https://api.nuget.org/v3/index.json -n
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package xunit.abstractions --source https://api.nuget.org/v3/index.json -n
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package Microsoft.AspNetCore.TestHost --source https://api.nuget.org/v3/index.json -n
 dotnet add "$solutionname.Tests/$solutionname.Tests.csproj" package Microsoft.AspNetCore.Mvc.Testing --source https://api.nuget.org/v3/index.json -n
-
-nuget update -verbosity quiet -source https://api.nuget.org/v3/index.json
 
 # Initial builds to see that all works as expected
 dotnet restore --verbosity q --source https://api.nuget.org/v3/index.json --ignore-failed-sources
